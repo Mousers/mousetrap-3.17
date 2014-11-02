@@ -120,7 +120,7 @@ class BuildCommand(build):
         LOCALE_PATH = "%s/mousetrap/locale" % SRC_PATH
         DEST_PATH = "%s/mousetrap/locale" % self.build_lib
 
-        root, directories, files = os.walk(LOCALE_PATH).next()
+        root, directories, files = next(os.walk(LOCALE_PATH))
 
         language_codes = directories
 
