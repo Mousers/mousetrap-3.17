@@ -17,7 +17,7 @@ class test__rmerge(unittest.TestCase):
                 'alpha': 5,
                 'list': [6, 7],
                 'dict': {
-                    'charlie' : 8}}}
+                    'charlie': 8}}}
 
         self.b = {
             'new': 9,
@@ -28,7 +28,7 @@ class test__rmerge(unittest.TestCase):
                     'charlie': 11,
                     'new': 12,
                     'newdict': {
-                        'some':'dict'}}}}
+                        'some': 'dict'}}}}
         self.ab = {
             'new': 9,
             'red': 1,
@@ -38,10 +38,10 @@ class test__rmerge(unittest.TestCase):
                 'alpha': 5,
                 'list': [6, 7],
                 'dict': {
-                    'charlie' : 11,
+                    'charlie': 11,
                     'new': 12,
                     'newdict': {
-                        'some':'dict'}}}}
+                        'some': 'dict'}}}}
 
     def test__rmerge(self):
         _rmerge(self.a, self.b)
@@ -67,16 +67,15 @@ class test_Config(unittest.TestCase):
         self.assertIsInstance(self.config['assembly'], list)
 
     def test_load(self):
-        self.files.write('f1',\
-"""
-x: 1
-y: 2
-""")
-        self.files.write('f2',\
-"""
-x: 3
-z: 4
-""")
+        self.files.write('f1', (
+            "x: 1\n"
+            "y: 2"
+        ))
+        self.files.write('f2', (
+            "x: 3\n"
+            "z: 4"
+        ))
+
         self.config.load([self.files.path('f1'), self.files.path('f2')])
         self.assertEquals({'x': 3, 'y': 2, 'z': 4}, self.config)
 

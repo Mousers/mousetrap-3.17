@@ -1,0 +1,37 @@
+language: python
+
+python:
+  - 2.7
+  - 3.2
+
+env:
+  matrix:
+    - OPENCV_VERSION=2.4.10.1
+    - OPENCV_VERSION=3.0.0-beta
+    - OPENCV_VERSION=master
+
+matrix:
+  include:
+    - python: 2.7
+      env: LINT=true
+  exclude:
+    - python: 3.2
+      env: OPENCV_VERSION=2.4.10.1
+  allow_failures:
+    - env: OPENCV_VERSION=master
+
+# Install MouseTrap dependencies
+before_install:
+  - bin/ci-install-deps.bash
+
+# Install MouseTrap
+install:
+  - bin/ci-install.bash
+
+# Run the tests
+script:
+  - bin/ci.bash
+
+# Show coverage report
+after_script:
+  - bin/coverage.bash

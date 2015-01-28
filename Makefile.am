@@ -131,18 +131,27 @@ check-local:
 				--source="$(MT_BUILD_HOME)" \
 				--omit="*/__init__.py","*/test_*.py","*/run_python_tests.py" \
 				"$(MT_BUILD_TESTS)"; \
-		coverage report -m; \
+		exit $$?; \
 	else \
 		PYTHONPATH="$(MT_BUILD_HOME)" \
 			"$(PYTHON)" "$(MT_BUILD_TESTS)"; \
+		exit $$?; \
 	fi
+
+
+##############################################################################
+# TARGET: coverage
+
+coverage:
+	bin/coverage.bash
+
 
 
 ##############################################################################
 # TARGET: lint
 
 lint:
-	pylint $(srcdir)/src/mousetrap
+	(cd $(srcdir); bin/lint.bash)
 
 
 ##############################################################################

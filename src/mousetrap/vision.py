@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+
 '''
 All things computer vision.
 '''
@@ -21,13 +22,17 @@ FRAME_HEIGHT = 4
 
 class Camera(object):
     S_CAPTURE_OPEN_ERROR = _(
-            'Device #%d does not support video capture interface')
-    S_CAPTURE_READ_ERROR = _('Error while capturing. Camera disconnected?')
+        'Device #%d does not support video capture interface'
+    )
+    S_CAPTURE_READ_ERROR = _(
+        'Error while capturing. Camera disconnected?'
+    )
 
     def __init__(self, config):
         self._config = config
-        self._device = \
-                self._new_capture_device(config['camera']['device_index'])
+        self._device = self._new_capture_device(
+            config['camera']['device_index']
+        )
         self.set_dimensions(
             config['camera']['width'],
             config['camera']['height'],
@@ -65,7 +70,7 @@ class HaarLoader(object):
         self._haar_cache = {}
 
     def from_name(self, name):
-        if not name in self._haar_files:
+        if name not in self._haar_files:
             raise HaarNameError(name)
 
         haar_file = self._haar_files[name]
@@ -86,8 +91,8 @@ class HaarLoader(object):
 
         haar = cv2.CascadeClassifier(haar_file)
 
-        if not cache_name is None:
-            if not cache_name in self._haar_cache:
+        if cache_name is not None:
+            if cache_name not in self._haar_cache:
                 self._haar_cache[cache_name] = haar
 
         return haar
@@ -104,11 +109,15 @@ class FeatureDetector(object):
     @classmethod
     def get_detector(cls, config, name, scale_factor=1.1, min_neighbors=3):
         key = (name, scale_factor, min_neighbors)
+
         if key in cls._INSTANCES:
             LOGGER.info("Reusing %s detector.", key)
             return cls._INSTANCES[key]
+
         cls._INSTANCES[key] = FeatureDetector(
-                config, name, scale_factor, min_neighbors)
+            config, name, scale_factor, min_neighbors
+        )
+
         return cls._INSTANCES[key]
 
     @classmethod
@@ -126,8 +135,11 @@ class FeatureDetector(object):
         min_neighbors - how many neighbors each candidate rectangle should have
                 to retain it. Default 3.
         '''
-        LOGGER.info("Building detector: %s",
-                (name, scale_factor, min_neighbors))
+        LOGGER.info(
+            "Building detector: %s",
+            (name, scale_factor, min_neighbors)
+        )
+
         self._config = config
         self._name = name
         self._single = None
@@ -141,13 +153,19 @@ class FeatureDetector(object):
 
     def detect(self, image):
         if image in self._detect_cache:
-            message = "Detection cache hit: %(image)d -> %(result)s" % \
-                    {'image':id(image), 'result':self._detect_cache[image]}
+            message = "Detection cache hit: %(image)d -> %(result)s" % {
+                'image': id(image),
+                'result': self._detect_cache[image],
+            }
             LOGGER.debug(message)
+
             if isinstance(self._detect_cache[image], FeatureNotFoundException):
                 message = str(self._detect_cache[image])
-                raise FeatureNotFoundException(message,
-                        cause=self._detect_cache[image])
+                raise FeatureNotFoundException(
+                    message,
+                    cause=self._detect_cache[image]
+                )
+
             return self._detect_cache[image]
         try:
             self._image = image
@@ -157,9 +175,11 @@ class FeatureDetector(object):
             self._extract_image()
             self._calculate_center()
             self._detect_cache[image] = self._single
+
             return self._detect_cache[image]
         except FeatureNotFoundException as exception:
             self._detect_cache[image] = exception
+
             raise
 
     def _detect_plural(self):
@@ -184,8 +204,8 @@ class FeatureDetector(object):
 
     def _unpack_first(self):
         self._single = dict(
-                zip(['x', 'y', 'width', 'height'],
-                self._plural[0]))
+            zip(['x', 'y', 'width', 'height'], self._plural[0])
+        )
 
     def _calculate_center(self):
         self._single["center"] = {

@@ -11,8 +11,35 @@ import logging
 LOGGER = logging.getLogger(__name__)
 
 
-from gi.repository import Gtk
-from gi.repository import Gdk
+# gtk can be patch with a Mock during testing without ever importing Gtk
+# from gi.repository. This is necessary since importing Gtk from gi.repository
+# on a headless system raises an error.
+gtk = None
+
+
+def get_gtk():
+    global gtk
+
+    if gtk is None:
+        from gi.repository import Gtk
+        gtk = Gtk
+
+    return gtk
+
+# gdk can be patch with a Mock during testing without ever importing Gdk
+# from gi.repository. This is necessary since importing Gdk from gi.repository
+# on a headless system raises an error.
+gdk = None
+
+
+def get_gdk():
+    global gdk
+
+    if gdk is None:
+        from gi.repository import Gdk
+        gdk = Gdk
+
+    return gdk
 
 
 from Xlib.display import Display as XlibDisplay
@@ -24,12 +51,13 @@ from mousetrap.i18n import _
 
 
 class ImageWindow(object):
+
     def __init__(self, config, message):
         self._config = config
-        self._window = Gtk.Window(title=message)
-        self._canvas = Gtk.Image()
+        self._window = get_gtk().Window(title=message)
+        self._canvas = get_gtk().Image()
         self._window.add(self._canvas)
-        self._window.connect("delete-event", Gtk.main_quit)
+        self._window.connect("delete-event", get_gtk().main_quit)
         self._window.show_all()
 
     def draw(self, image):
@@ -41,6 +69,7 @@ class ImageWindow(object):
 
 
 class Gui(object):
+
     def __init__(self, config):
         self._config = config
         self._windows = {}
@@ -55,13 +84,13 @@ class Gui(object):
 
     def start(self):
         '''Start handling events.'''
-        Gtk.main()
+        get_gtk().main()
 
     def get_screen_width(self):
-        return Gtk.Window().get_screen().get_width()
+        return get_gtk().Window().get_screen().get_width()
 
     def get_screen_height(self):
-        return Gtk.Window().get_screen().get_height()
+        return get_gtk().Window().get_screen().get_height()
 
 
 class Pointer(object):
@@ -69,7 +98,7 @@ class Pointer(object):
 
     def __init__(self, config):
         self._config = config
-        gdk_display = Gdk.Display.get_default()
+        gdk_display = get_gdk().Display.get_default()
         device_manager = gdk_display.get_device_manager()
         self._pointer = device_manager.get_client_pointer()
         self._screen = gdk_display.get_default_screen()

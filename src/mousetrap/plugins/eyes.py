@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+
 from mousetrap.i18n import _
 import logging
 LOGGER = logging.getLogger(__name__)
@@ -45,7 +46,9 @@ class ClosedDetector(object):
     def __init__(self, config):
         self._config = config
         self._max_samples = config[self]['max_samples']
-        self._min_fraction_to_be_closed = config[self]['min_fraction_to_be_closed']
+        self._min_fraction_to_be_closed = config[self][
+            'min_fraction_to_be_closed'
+        ]
         self._min_misses_to_be_closed = int(
             self._min_fraction_to_be_closed * self._max_samples)
         self._left_locator = LeftEyeLocator(config)

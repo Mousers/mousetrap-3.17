@@ -19,11 +19,12 @@ logging.config.dictConfig(CONFIG['logging-test'])
 LOGGER = logging.getLogger('mousetrap.tests.run_python_tests')
 
 
-
 def main():
     initialize_import_path()
     tests = load_tests()
-    run_tests(tests)
+
+    if not all_tests_pass(tests):
+        sys.exit(1)
 
 
 def initialize_import_path():
@@ -49,8 +50,8 @@ def load_tests():
     return tests
 
 
-def run_tests(tests):
-    TextTestRunner().run(tests)
+def all_tests_pass(tests):
+    return TextTestRunner().run(tests).wasSuccessful()
 
 
 if __name__ == '__main__':

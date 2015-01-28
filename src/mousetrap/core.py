@@ -13,6 +13,7 @@ from mousetrap.vision import Camera
 
 
 class App(object):
+
     def __init__(self, config):
         LOGGER.info("Initializing")
         self.config = config
@@ -32,19 +33,25 @@ class App(object):
         for class_ in self.config['assembly']:
             self.plugins.append(self._load_plugin(class_))
 
-    def _load_plugin(self, class_):
+    def _load_plugin(self, class_string):
         try:
-            LOGGER.info('loading %s', class_)
-            class_path = class_.split('.')
+            LOGGER.info('loading %s', class_string)
+
+            class_path = class_string.split('.')
             module = __import__(
-                    '.'.join(class_path[:-1]), {}, {}, class_path[-1])
+                '.'.join(class_path[:-1]), {}, {}, class_path[-1]
+            )
+
             return getattr(module, class_path[-1])(self.config)
         except ImportError:
             LOGGER.error(
-                _('Could not import plugin `%s`.' + \
-                        'Check config file and PYTHONPATH.'),
-                class_
-                )
+                _(
+                    'Could not import plugin `%s`. ' +
+                    'Check config file and PYTHONPATH.'
+                ),
+                class_string
+            )
+
             raise
 
     def _register_plugins_with_loop(self):
@@ -57,6 +64,7 @@ class App(object):
 
 
 class Observable(object):
+
     def __init__(self):
         self.__observers = []
         self.__arguments = {}

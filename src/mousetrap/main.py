@@ -2,9 +2,11 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
+
 '''
 Where it all begins.
 '''
+
 from argparse import ArgumentParser
 import logging
 import logging.config
@@ -70,16 +72,23 @@ class CommandLineArguments(object):
 
     def __init__(self):
         parser = ArgumentParser()
-        parser.add_argument("--config",
-                metavar="FILE",
-                help="Loads configuration from FILE.")
-        parser.add_argument("--dump-config",
-                help="Loads and dumps current configuration to standard out.",
-                action="store_true")
-        parser.add_argument("--dump-annotated",
-                help="Dumps default configuration" + \
-                    " (with comments) to standard out.",
-                action="store_true")
+        parser.add_argument(
+            "--config",
+            metavar="FILE",
+            help="Loads configuration from FILE."
+        )
+        parser.add_argument(
+            "--dump-config",
+            help="Loads and dumps current configuration to standard out.",
+            action="store_true"
+        )
+        parser.add_argument(
+            "--dump-annotated",
+            help=(
+                "Dumps default configuration (with comments) to standard out."
+            ),
+            action="store_true"
+        )
         parser.parse_args(namespace=self)
 
 

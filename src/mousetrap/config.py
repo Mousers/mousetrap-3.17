@@ -3,9 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 from yaml import safe_load
-from os.path import dirname, expanduser, isfile
-from os import getcwd
-from shutil import copy
+from os.path import dirname
 from copy import deepcopy
 from io import open
 
@@ -22,9 +20,11 @@ class Config(dict):
 
     def load_path(self, path):
         print("# Loading %s" % (path))
+
         with open(path) as config_file:
             config = safe_load(config_file)
             _rmerge(self, config)
+
         return self
 
     def load_dict(self, dictionary):
@@ -39,7 +39,9 @@ class Config(dict):
 
         is equivelant to
 
-            x = config['classes'][self.__class__.__module__+'.'+self.__class__.__name__]['x']
+            x = config['classes'][
+                self.__class__.__module__ + '.' + self.__class__.__name__
+            ]['x']
         '''
         from mousetrap.compat import string_types
 
