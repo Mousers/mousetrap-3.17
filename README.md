@@ -20,7 +20,7 @@ License: GPL v2.0 (see LICENSE)
 
 ### Development
 
-    $ git clone https://github.com/GNOME-MouseTrap/mousetrap.git
+    $ git clone git://git.gnome.org/mousetrap --branch gnome3-wip
 
 
 ## Installing
