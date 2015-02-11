@@ -1,4 +1,4 @@
 #!/bin/bash
 set -x
 
-flake8 src/mousetrap
+flake8 --ignore=E402 src/mousetrap
