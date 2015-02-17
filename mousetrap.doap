@@ -9,7 +9,6 @@
   <homepage rdf:resource="http://wiki.gnome.org/Projects/MouseTrap" />
   <mailing-list rdf:resource="http://mail.gnome.org/mailman/listinfo/mousetrap-list" />
   <bug-database rdf:resource="https://bugzilla.gnome.org/browse.cgi?product=mousetrap" />
-  <category rdf:resource="http://api.gnome.org/doap-extensions#desktop" />
 
   <maintainer>
     <foaf:Person>
