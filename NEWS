@@ -1,0 +1,9 @@
+3.17.0-pre
+==========
+* New code-base
+* Python 2/3 compatible
+* Build management backed by setup.py, but accessed through make
+* Greater emphasis on automated testing using Python's unittest module
+* Expanded use of make for development tasks (e.g., make check, make coverage,
+    make run, etc.)
+* Add Travis-CI support
