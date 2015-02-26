@@ -56,6 +56,13 @@ to install the mousetrap dependencies for Fedora21, Python3 and OpenCV3.
     make
     sudo make install
 
+## Uninstalling
+
+When uninstalling, make sure that you are in the Mousetrap folder that you used to install Mousetrap.
+
+### Using 'autotools'
+
+    sudo make uninstall
 
 ## Running
 
