@@ -29,9 +29,9 @@ sudo rpm -ivh http://copr-be.cloud.fedoraproject.org/results/mosquito/myrepo/fed
 
 #install openCV 3
 cd vendor
-git clone --branch 3.0.0-alpha --depth 1 https://github.com/Itseez/opencv.git
+git clone --branch 3.0.0-beta --depth 1 https://github.com/Itseez/opencv.git
 cd opencv
-git checkout 3.0.0-alpha
+git checkout 3.0.0-beta
 
 mkdir release
 cd release
