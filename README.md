@@ -1,6 +1,7 @@
 # MouseTrap
 
-License: GPL v2.0 (see LICENSE)
+* Version: 3.17.1
+* License: GPL v2.0 (see LICENSE)
 
 
 ## Software Requirements

@@ -1,9 +1,9 @@
 AC_PREREQ([2.50])
 
-AC_INIT([mousetrap],[3.17.0-pre],[https://bugzilla.gnome.org/enter_bug.cgi?product=mousetrap])
+AC_INIT([mousetrap],[3.17.1],[https://bugzilla.gnome.org/enter_bug.cgi?product=mousetrap])
 AM_INIT_AUTOMAKE([1.11.3 foreign])
 
-MOUSETRAP_VERSION=3.17.0-pre
+MOUSETRAP_VERSION=3.17.1
 AC_SUBST(MOUSETRAP_VERSION)
 
 CURRENT_DIR=$PWD

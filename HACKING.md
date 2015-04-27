@@ -18,9 +18,9 @@ Getting Connected
 Contributor License Agreement
 -----------------------------
 
-All contributions are assumed to be licensed under GPL v3. If you include code
+All contributions are assumed to be licensed under GPL v2. If you include code
 from another project, you must include their license and give them credit for
-the code. Only code with licenses compatible with GPL v3 will be accepted.
+the code. Only code with licenses compatible with GPL v2 will be accepted.
 
 
 Contributing
