@@ -47,14 +47,15 @@ Branches
 --------
 
 - master - Unstable, but buildable, development branch
-- gnome-MAJ-MIN - (e.g., gnome-3-15) Stable branch targeting GNOME MAJ.MIN
+- gnome-MAJ-MIN - (e.g., gnome-3-16) Stable branch targeting GNOME MAJ.MIN
 - wip/FEATURE - Unstable, possibly unbuildable, development branch for working
   on FEATURE
 
 Tags
 ----
 
-Tags mark releases and contain the version number of the release (e.g., 3.15.2).
+Tags mark releases and contain the version number of the release (e.g.,
+mousetrap-3.17.1).
 
 
 Code Conventions
