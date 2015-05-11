@@ -1,6 +1,6 @@
 # MouseTrap
 
-* Version: 3.17.2-pre
+* Version: 3.17.2
 * License: GPL v2.0 (see LICENSE)
 
 
