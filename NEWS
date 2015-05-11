@@ -1,10 +1,14 @@
+3.17.3
+=======
+
+
 3.17.2
-==========
+=======
 * HACKING.md: update version number descriptions
 
 
 3.17.1
-==========
+=======
 * Supports Python3 with OpenCV3 and Python2 with OpenCV2
 * Makefiles now backed by setup.py
 * Introduces unit-testing through Python's unittest module
