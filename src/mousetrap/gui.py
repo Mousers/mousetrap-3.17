@@ -69,6 +69,21 @@ class ImageWindow(object):
 
 
 class Gui(object):
+    _running = False
+
+    @classmethod
+    def start(cls):
+        '''Start handling events.'''
+        if not cls._running:
+            cls._running = True
+            get_gtk().main()
+
+    @classmethod
+    def stop(cls):
+        '''Stop handling events.'''
+        if cls._running:
+            cls._running = False
+            get_gtk().main_quit()
 
     def __init__(self, config):
         self._config = config
@@ -81,10 +96,6 @@ class Gui(object):
         if window_name not in self._windows:
             self._windows[window_name] = ImageWindow(self._config, window_name)
         self._windows[window_name].draw(image)
-
-    def start(self):
-        '''Start handling events.'''
-        get_gtk().main()
 
     def get_screen_width(self):
         return get_gtk().Window().get_screen().get_width()

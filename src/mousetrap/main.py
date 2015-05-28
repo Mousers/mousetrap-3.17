@@ -8,14 +8,16 @@ Where it all begins.
 '''
 
 from argparse import ArgumentParser
+from io import open
 import logging
 import logging.config
+from os.path import dirname, expanduser, exists
+import signal
 import sys
 import yaml
-from os.path import dirname, expanduser, exists
-from io import open
 
 from mousetrap.config import Config
+from mousetrap.core import App
 
 
 class Main(object):
@@ -24,6 +26,7 @@ class Main(object):
 
     def __init__(self):
         try:
+            self._app = None
             self._args = CommandLineArguments()
             self._handle_dump_annotated()
             self._config = Config().load(self._get_config_paths())
@@ -64,12 +67,16 @@ class Main(object):
         logger.debug(yaml.dump(dict(self._config), default_flow_style=False))
 
     def run(self):
-        from mousetrap.core import App
-        App(self._config).run()
+        self._app = App(self._config)
+        signal.signal(signal.SIGTERM, self._stop_signal_handler)
+        signal.signal(signal.SIGINT, self._stop_signal_handler)
+        self._app.run()
+
+    def _stop_signal_handler(self, signal_number, stack_frame):
+        self._app.stop()
 
 
 class CommandLineArguments(object):
-
     def __init__(self):
         parser = ArgumentParser()
         parser.add_argument(

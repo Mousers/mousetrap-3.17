@@ -62,6 +62,10 @@ class App(object):
         self.loop.start()
         self.gui.start()
 
+    def stop(self):
+        self.gui.stop()
+        self.loop.stop()
+
 
 class Observable(object):
 
@@ -93,6 +97,7 @@ class Loop(Observable):
         self._timeout_id = None
         self._set_loops_per_second(config['loops_per_second'])
         self._add_argument('app', app)
+        self._loop_enabled = False
 
     def _set_loops_per_second(self, loops_per_second):
         self._loops_per_second = loops_per_second
@@ -100,9 +105,12 @@ class Loop(Observable):
             self.MILLISECONDS_PER_SECOND / self._loops_per_second))
 
     def start(self):
+        self._loop_enabled = True
         self._timeout_id = GLib.timeout_add(self._interval, self._run)
+
+    def stop(self):
+        self._loop_enabled = False
 
     def _run(self):
         self._fire(self.CALLBACK_RUN)
-        continue_ = True
-        return continue_
+        return self._loop_enabled
