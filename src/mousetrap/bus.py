@@ -134,13 +134,11 @@ class Bus(object):
                     if registration['callable'] != callable
                 ]
 
-    def fire(self, event):
-        '''Calls callables registered for event named by event.name.
-        
-        Parameters
-
-            event -- Event: the event object passed to callables.
+    def fire(self, event, data=None, **keyword_args):
+        '''Calls callables registered for event named by event.name. The
+        parameters for fire are the same as those for Event.__init__.
         '''
+        event = Event(event, data, **keyword_args)
         callbacks = self._get_callbacks(event.name)
         for callback in callbacks:
             callback(event)
