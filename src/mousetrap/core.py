@@ -18,7 +18,6 @@ class App(object):
         LOGGER.info("Initializing")
         self.bus = Bus()
         self.config = config
-        self.image = None
         self.loop = Loop(self)
         self.gui = Gui(self)
         self.pointer = Pointer(self)

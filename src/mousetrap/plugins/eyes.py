@@ -21,7 +21,7 @@ class EyesPlugin(interface.Plugin):
     def track_eyes(self, event):
         app = self.app()
         self._motion_detector.update(app.pointer)
-        self._closed_detector.update(app.image)
+        self._closed_detector.update(event['image'])
 
         if self._motion_detector.is_stationary() and \
                 self._closed_detector.is_closed():
