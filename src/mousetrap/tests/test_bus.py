@@ -51,21 +51,21 @@ class test_Bus(unittest.TestCase):
         def foo(event):
             self.assertEqual('event_name', event.name)
         self.bus.call(foo, on='event_name')
-        self.bus.fire(Event('event_name'))
+        self.bus.fire('event_name')
 
     def test_passing_data(self):
         def foo(event):
             self.assertEqual('event_name', event.name)
             self.assertEqual(3, event['x'])
         self.bus.call(foo, on='event_name')
-        self.bus.fire(Event('event_name', x=3))
+        self.bus.fire('event_name', x=3)
 
     def test_multicall(self):
         mock = Mock()
         self.bus.call(mock, on='event_name')
         self.bus.call(mock, on='event_name')
         self.bus.call(mock, on='different_name')
-        self.bus.fire(Event('event_name', x=3))
+        self.bus.fire('event_name', x=3)
         self.assertEqual(2, mock.call_count)
 
     def test_different_events(self):
@@ -73,10 +73,10 @@ class test_Bus(unittest.TestCase):
         bar = Mock()
         self.bus.call(foo, on='event_name')
         self.bus.call(bar, on='different_name')
-        self.bus.fire(Event('event_name', x=3))
+        self.bus.fire('event_name', x=3)
         self.assertTrue(foo.called)
         self.assertFalse(bar.called)
-        self.bus.fire(Event('different_name', x=3))
+        self.bus.fire('different_name', x=3)
         self.assertTrue(bar.called)
         self.assertEqual(1, foo.call_count)
 
@@ -86,13 +86,13 @@ class test_Bus(unittest.TestCase):
         self.bus.call(foo, on='event_name')
         self.bus.call(bar, on='event_name')
         self.bus.dont_call(foo, on='event_name')
-        self.bus.fire(Event('event_name', x=3))
+        self.bus.fire('event_name', x=3)
         self.assertFalse(foo.called)
         self.assertTrue(bar.called)
 
     def test_has_publisher(self):
         self.assertFalse(self.bus.has_publisher('event_name'))
-        self.bus.will_fire(self, 'event_name')
+        self.bus.might_fire(self, 'event_name')
         self.assertTrue(self.bus.has_publisher('event_name'))
 
     def test_get_unpublished_required_registrations(self):
