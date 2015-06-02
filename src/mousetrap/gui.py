@@ -70,8 +70,8 @@ class ImageWindow(object):
 
 class Gui(object):
 
-    def __init__(self, config):
-        self._config = config
+    def __init__(self, app):
+        self._config = app.config
         self._windows = {}
 
     def show_image(self, window_name, image):
@@ -96,8 +96,8 @@ class Gui(object):
 class Pointer(object):
     BUTTON_LEFT = X.Button1
 
-    def __init__(self, config):
-        self._config = config
+    def __init__(self, app):
+        self._config = app.config
         gdk_display = get_gdk().Display.get_default()
         device_manager = gdk_display.get_device_manager()
         self._pointer = device_manager.get_client_pointer()

@@ -28,8 +28,8 @@ class Camera(object):
         'Error while capturing. Camera disconnected?'
     )
 
-    def __init__(self, config):
-        self._config = config
+    def __init__(self, app):
+        self._config = app.config
         self._device = self._new_capture_device(
             config['camera']['device_index']
         )

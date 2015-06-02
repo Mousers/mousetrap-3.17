@@ -7,9 +7,9 @@ import mousetrap.plugins.interface as interface
 
 class DisplayPlugin(interface.Plugin):
 
-    def __init__(self, config):
-        self._config = config
-        self._window_title = config[self]['window_title']
+    def init(self):
+        self.call(self.display_image, on='captured_image')
 
-    def run(self, app):
-        app.gui.show_image(self._window_title, app.image)
+    def display_image(self, event):
+        title = self.config('window_title')
+        self.app().gui.show_image(title, event['image'])

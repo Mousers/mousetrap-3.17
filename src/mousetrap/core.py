@@ -9,19 +9,19 @@ from gi.repository import GLib
 
 from mousetrap.i18n import _
 from mousetrap.gui import Gui, Pointer
-from mousetrap.vision import Camera
+from mousetrap.bus import Bus
 
 
 class App(object):
 
     def __init__(self, config):
         LOGGER.info("Initializing")
+        self.bus = Bus()
         self.config = config
         self.image = None
-        self.loop = Loop(config, self)
-        self.gui = Gui(config)
-        self.camera = Camera(config)
-        self.pointer = Pointer(config)
+        self.loop = Loop(self)
+        self.gui = Gui(self)
+        self.pointer = Pointer(self)
         self.plugins = []
         self._assemble_plugins()
 
@@ -42,7 +42,7 @@ class App(object):
                 '.'.join(class_path[:-1]), {}, {}, class_path[-1]
             )
 
-            return getattr(module, class_path[-1])(self.config)
+            return getattr(module, class_path[-1])(self)
         except ImportError:
             LOGGER.error(
                 _(
@@ -63,31 +63,13 @@ class App(object):
         self.gui.start()
 
 
-class Observable(object):
-
-    def __init__(self):
-        self.__observers = []
-        self.__arguments = {}
-
-    def subscribe(self, observer):
-        self.__observers.append(observer)
-
-    def _add_argument(self, key, value):
-        self.__arguments[key] = value
-
-    def _fire(self, callback_name):
-        for observer in self.__observers:
-            callback = getattr(observer, callback_name)
-            callback(**self.__arguments)
-
-
-class Loop(Observable):
+class Loop():
     MILLISECONDS_PER_SECOND = 1000.0
     CALLBACK_RUN = 'run'
 
-    def __init__(self, config, app):
+    def __init__(self, app):
         super(Loop, self).__init__()
-        self._config = config
+        self._config = app._config
         self._interval = None
         self._loops_per_second = None
         self._timeout_id = None
@@ -103,6 +85,6 @@ class Loop(Observable):
         self._timeout_id = GLib.timeout_add(self._interval, self._run)
 
     def _run(self):
-        self._fire(self.CALLBACK_RUN)
+        self._app.bus.fire('clock_ticked')
         continue_ = True
         return continue_

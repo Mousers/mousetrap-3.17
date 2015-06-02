@@ -6,9 +6,15 @@ import mousetrap.plugins.interface as interface
 
 
 class CameraPlugin(interface.Plugin):
+    def init(self):
+        self.call(capture_image, on='clock_ticked')
+        self.might_fire('captured_image')
+        self._camera = self.grab_camera()
 
-    def __init__(self, config):
-        self._config = config
+    def capture_image(self, event):
+        image = self._camera.read_image()
+        self.fire('captured_image', image=image)
 
-    def run(self, app):
-        app.image = app.camera.read_image()
+    def grab_camera(self):
+        from mousetrap.vision import Camera
+        return Camera(self.app())

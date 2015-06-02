@@ -13,12 +13,13 @@ from mousetrap.vision import FeatureDetector, FeatureNotFoundException
 
 
 class EyesPlugin(interface.Plugin):
-    def __init__(self, config):
-        self._config = config
-        self._motion_detector = MotionDetector(config)
-        self._closed_detector = ClosedDetector(config)
+    def init(self):
+        self._motion_detector = MotionDetector(self.full_config())
+        self._motion_detector = ClosedDetector(self.full_config())
+        self.call(track_eyes, on='captured_image')
 
-    def run(self, app):
+    def track_eyes(self, event):
+        app = self.app()
         self._motion_detector.update(app.pointer)
         self._closed_detector.update(app.image)
 
