@@ -12,8 +12,12 @@ import logging
 import logging.config
 import sys
 import yaml
-from os.path import dirname, expanduser, exists
+import signal
+import logging
+import logging.config
 from io import open
+from argparse import ArgumentParser
+from os.path import dirname, expanduser, exists
 
 from mousetrap.config import Config
 
@@ -65,11 +69,16 @@ class Main(object):
 
     def run(self):
         from mousetrap.core import App
-        App(self._config).run()
+        self.app = App(self._config)
+        signal.signal(signal.SIGTERM, self._signal_handler)
+        signal.signal(signal.SIGINT, self._signal_handler)
+        self.app.run()
+
+    def _signal_handler(self, signal_number, stack_frame):
+        self.app.stop()
 
 
 class CommandLineArguments(object):
-
     def __init__(self):
         parser = ArgumentParser()
         parser.add_argument(

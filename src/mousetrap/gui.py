@@ -86,6 +86,9 @@ class Gui(object):
         '''Start handling events.'''
         get_gtk().main()
 
+    def stop(self):
+        get_gtk().main_quit()
+
     def get_screen_width(self):
         return get_gtk().Window().get_screen().get_width()
 
