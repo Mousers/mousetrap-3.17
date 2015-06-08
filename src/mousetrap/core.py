@@ -4,80 +4,50 @@ from __future__ import absolute_import
 from __future__ import division
 import logging
 LOGGER = logging.getLogger(__name__)
-
-from gi.repository import GLib
-
 from mousetrap.i18n import _
-from mousetrap.gui import Gui, Pointer
-from mousetrap.bus import Bus
 
 
-class App(object):
+from mousetrap.gui import Pointer
+class PointerComponent(Component):
+    def init(self):
+        self._pointer = Pointer()
+        self.call(self.move, on='move_pointer')
+        self.call(self.warp, on='warp_pointer')
 
-    def __init__(self, config):
-        LOGGER.info("Initializing")
-        self.bus = Bus()
-        self.config = config
-        self.loop = Loop(self)
-        self.gui = Gui(self)
-        self.pointer = Pointer(self)
-        self.plugins = []
-        self._assemble_plugins()
+    def move(self, event):
+        m = self.config()['multiplier']
+        dx = event['dx']
+        dy = event['dy']
+        self._pointer.move(int(m*dx), int(m*dy))
 
-    def _assemble_plugins(self):
-        self._load_plugins()
-        self._register_plugins_with_loop()
+    def warp(self, event):
+        x = event['x']
+        y = event['y']
+        self._pointer.warp(x, y)
 
-    def _load_plugins(self):
-        for class_ in self.config['assembly']:
-            self.plugins.append(self._load_plugin(class_))
 
-    def _load_plugin(self, class_string):
-        try:
-            LOGGER.info('loading %s', class_string)
+from mousetrap.gui import Gui
+class GuiComponent(Component):
+    def init(self):
+        self._gui = Gui()
 
-            class_path = class_string.split('.')
-            module = __import__(
-                '.'.join(class_path[:-1]), {}, {}, class_path[-1]
-            )
-
-            return getattr(module, class_path[-1])(self)
-        except ImportError:
-            LOGGER.error(
-                _(
-                    'Could not import plugin `%s`. ' +
-                    'Check config file and PYTHONPATH.'
-                ),
-                class_string
-            )
-
-            raise
-
-    def _register_plugins_with_loop(self):
-        for plugin in self.plugins:
-            self.loop.subscribe(plugin)
-
-    def run(self):
-        self.loop.start()
-        self.gui.start()
+    def start(self):
+        self._gui.start()
 
     def stop(self):
-        self.gui.stop()
-        self.loop.stop()
+        self._gui.stop()
 
 
-class Loop():
+from gi.repository import GLib
+class Loop(Component):
     MILLISECONDS_PER_SECOND = 1000.0
     CALLBACK_RUN = 'run'
 
-    def __init__(self, app):
-        super(Loop, self).__init__()
-        self._config = app._config
+    def init(self):
         self._interval = None
         self._loops_per_second = None
         self._timeout_id = None
-        self._set_loops_per_second(config['loops_per_second'])
-        self._add_argument('app', app)
+        self._set_loops_per_second(self.config()['loops_per_second'])
         self._loop_enabled = True
 
     def _set_loops_per_second(self, loops_per_second):
@@ -92,5 +62,6 @@ class Loop():
         self._loop_enabled = False
 
     def _run(self):
-        self._fire(self.CALLBACK_RUN)
+        if self._loop_enabled:
+            self.fire('loop_ticked')
         return self._loop_enabled
