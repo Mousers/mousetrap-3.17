@@ -6,6 +6,7 @@ assembly:
 - mousetrap.plugins.nose.NoseJoystickPlugin
 - mousetrap.plugins.eyes.EyesPlugin
 - mousetrap.vision.FeatureDetectorClearCachePlugin
+#- mousetrap.plugins.bright_object.Bright
 
 
 # camera - Configuration for the built-in camera.
