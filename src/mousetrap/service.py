@@ -186,26 +186,28 @@ class Bus(object):
 
     As a sanity check, it may be useful to require that every event that has a
     registered callback also have a registered publisher. This helps avoid
-    situations where a subscriber registers a callback for an event that will never
-    be fired.
+    situations where a subscriber registers a callback for an event that will
+    never be fired.
 
-    To address this, we can ask that all would-be publishers of an event to declare
-    that they may_fire that event. Of course that doesn't guarentee they will fire
-    that event, but at least there is a possibility that the event will fire.
+    To address this, we can ask that all would-be publishers of an event to
+    declare that they may_fire that event. Of course that doesn't guarentee
+    they will fire that event, but at least there is a possibility that the
+    event will fire.
 
         class Publisher:
             def __init__(self, bus):
                 bus.may_fire(self, 'some_event')
 
-    Now we can imagine an initialization process in which publishers declare the
-    events they may_fire, and subscribers register callbacks for those events (in
-    any order). After this initialization process, we can check if there are any
-    events that do not have a publisher as follows.
+    Now we can imagine an initialization process in which publishers declare
+    the events they may_fire, and subscribers register callbacks for those
+    events (in any order). After this initialization process, we can check if
+    there are any events that do not have a publisher as follows.
 
         offending_registrations = bus.get_unpublished_required_registrations()
 
-    The result is a dict containing registrations for unpublished events (i.e., no
-    one called may_fire for those events). We might print a warning for each.
+    The result is a dict containing registrations for unpublished events (i.e.,
+    no one called may_fire for those events). We might print a warning for
+    each.
 
         for event, registration in offending_registrations.items():
             callback = registration['callback']
@@ -239,19 +241,19 @@ class Bus(object):
         Parameters:
 
             callback -- A callback that accepts a single Event parameter.
-            
+
             on -- A hashable naming an event (typically a str).
 
             optional -- A bool indicating if the event is optional (True) or
             required (False; default). A required event requires that a
-            publisher has declared that it will fire the event. This method does
-            not enforce this requirement, it just marks the event as required or
-            not making it possible to enforce it using
+            publisher has declared that it will fire the event. This method
+            does not enforce this requirement, it just marks the event as
+            required or not making it possible to enforce it using
             get_unpublished_required_registrations.
 
             trace -- A stack trace formated according to traceback.extract_tb.
-            The trace should contain the call site of the registration. Defaults
-            to the current stack trace.
+            The trace should contain the call site of the registration.
+            Defaults to the current stack trace.
         '''
         self._get_callbacks(on).append(callback)
         if not optional:
@@ -260,7 +262,7 @@ class Bus(object):
 
     def dont_call(self, callback, on):
         '''Unregister callback for named event (on).
-        
+
         Example
 
             bus.dont_call(log_save, on='saved_file')
@@ -289,7 +291,7 @@ class Bus(object):
 
     def may_fire(self, publisher, event_name):
         '''Declare publisher will fire the named event.
-        
+
         Parameters
 
             publisher -- Can be any object. Usually it's the object that plans
@@ -319,8 +321,8 @@ class Bus(object):
 
         Return -- a dict whose keys are the event names and whose values are
         lists of (callback, trace), where callback is the callable that is
-        registered for the event, and trace is the stack trace when the callback
-        was registered (as returned by traceback.extract_tb).
+        registered for the event, and trace is the stack trace when the
+        callback was registered (as returned by traceback.extract_tb).
         '''
         unpublished_required_registrations = {}
         for event_name in self._required:
@@ -386,8 +388,8 @@ class Component(object):
     component is initially in the stopped state. A component only receives or
     fires events from other components in the running state (it may still
     receive events from the system). A component in the stopped state uses
-    minimal resources, whereas a component in the paused state retains resources
-    in anticipation of being resumed.
+    minimal resources, whereas a component in the paused state retains
+    resources in anticipation of being resumed.
 
     To implement a component, inherit from Component and override init(),
     start(), pause(), resume(), and stop() as needed. You may also call
@@ -395,9 +397,9 @@ class Component(object):
     automatically be registered and unregistered when your component's state is
     changed. For example when your component transitions from stopped to
     running, all callbacks that you registered using the component's on() are
-    automatically registered for the events. When your component is paused, they
-    will automatically be unregistered. You can also use component's off() to
-    unregister callbacks for events.
+    automatically registered for the events. When your component is paused,
+    they will automatically be unregistered. You can also use component's off()
+    to unregister callbacks for events.
 
     Methods starting with _ are not intended to be overriden.
     '''
@@ -550,7 +552,47 @@ class EventRegistration(object):
         return self.event_name == other.event_name and \
                 self.callback == other.callback
 
+#####################################################################
+#                                                                   #
+#  STRING -- Base type of strings in Python 2 or 3. Use with        #
+#  isinstance to check if a value is a string type. E.g.,           #
+#  isinstance(x, STRING)                                            #
+#                                                                   #
+#####################################################################
 
+def _get_string_type():
+    import sys
+    PYTYON_3 = sys.version_info[0] == 3
+    return (str, ) if PYTHON_3 else (basestring, )
+
+STRING = _get_string_type()
+
+#####################################################################
+#                                                                   #
+#  _(str) -- _ is shorthand for translations.gettext. Use it to     #
+#  get mark that a string should be translated, and return the      #
+#  translated string. E.g., _('This will be translated.').          #
+#                                                                   #
+#####################################################################
+
+def _get_translation_function():
+    import gettext
+    from os.path import abspath, dirname, join, realpath
+    locale_dir = abspath(join(dirname(realpath(__file__)), "locale"))
+    translations = gettext.translation("mousetrap", localedir=locale_dir)
+    try:
+        return translations.ugettext
+    except AttributeError:
+        return translations.gettext
+
+_ = _get_translation_function()
+
+#####################################################################
+#                                                                   #
+#  Start the MouseTrap service if this module is ran from the       #
+#  command line.                                                    #
+#                                                                   #
+#####################################################################
 
 if __name__ == '__main__':
     service = Service()
