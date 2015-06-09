@@ -137,3 +137,34 @@ class Pointer(object):
             LOGGER.debug('%s %s', event, button)
             xtest.fake_input(display, event, button)
             display.sync()
+
+
+from mousetrap.service import Component
+class PointerComponent(Component):
+    def init(self):
+        self._pointer = Pointer()
+        self.call(self.move, on='move_pointer')
+        self.call(self.warp, on='warp_pointer')
+
+    def move(self, event):
+        m = self.config()['multiplier']
+        dx = event['dx']
+        dy = event['dy']
+        self._pointer.move(int(m*dx), int(m*dy))
+
+    def warp(self, event):
+        x = event['x']
+        y = event['y']
+        self._pointer.warp(x, y)
+
+
+from mousetrap.service import Component
+class GuiComponent(Component):
+    def init(self):
+        self._gui = Gui()
+
+    def start(self):
+        self._gui.start()
+
+    def stop(self):
+        self._gui.stop()

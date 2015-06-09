@@ -245,3 +245,34 @@ class FeatureNotFoundException(Exception):
             message = message + ', caused by ' + repr(cause)
         self.cause = cause
         super(FeatureNotFoundException, self).__init__(message)
+
+
+# TODO: Integrate into CameraComponent
+
+from gi.repository import GLib
+class Loop(Component):
+    MILLISECONDS_PER_SECOND = 1000.0
+    CALLBACK_RUN = 'run'
+
+    def init(self):
+        self._interval = None
+        self._loops_per_second = None
+        self._timeout_id = None
+        self._set_loops_per_second(self.config()['loops_per_second'])
+        self._loop_enabled = True
+
+    def _set_loops_per_second(self, loops_per_second):
+        self._loops_per_second = loops_per_second
+        self._interval = int(round(
+            self.MILLISECONDS_PER_SECOND / self._loops_per_second))
+
+    def start(self):
+        self._timeout_id = GLib.timeout_add(self._interval, self._run)
+
+    def stop(self):
+        self._loop_enabled = False
+
+    def _run(self):
+        if self._loop_enabled:
+            self.fire('loop_ticked')
+        return self._loop_enabled
