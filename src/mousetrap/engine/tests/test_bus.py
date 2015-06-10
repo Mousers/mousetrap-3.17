@@ -92,7 +92,7 @@ class test_Bus(unittest.TestCase):
 
     def test_has_publisher(self):
         self.assertFalse(self.bus.has_publisher('event_name'))
-        self.bus.might_fire(self, 'event_name')
+        self.bus.may_fire(self, 'event_name')
         self.assertTrue(self.bus.has_publisher('event_name'))
 
     def test_get_unpublished_required_registrations(self):

@@ -32,12 +32,12 @@ class Component(object):
     STATE_RUNNING = 1
     STATE_PAUSED = 2
 
-    def __init__(self, service):
+    def __init__(self, engine):
         '''Do not override. Instead override init().'''
-        self._service = service
+        self._engine = engine
         self._state = self.STATE_STOPPED
         self._event_registrations = []
-        self._service.call(self._start, on='start_components')
+        self._engine.call(self._start, on='start_components')
         self.init()
 
     def init(self):
@@ -51,11 +51,11 @@ class Component(object):
         Do not override this method unless you know what you are doing.
         Instead override start().
         '''
-        self._service.dont_call(self._start, on='start_components')
-        self._service.call(self._stop, on='stop_components')
-        self._service.call(self._pause, on='pause_components')
+        self._engine.dont_call(self._start, on='start_components')
+        self._engine.call(self._stop, on='stop_components')
+        self._engine.call(self._pause, on='pause_components')
         for registration in self._event_registrations:
-            registration.register(bus=self._service)
+            registration.register(bus=self._engine)
         self._state = self.STATE_RUNNING
         self.start()
 
@@ -71,11 +71,11 @@ class Component(object):
         Do not override this method unless you know what you are doing.
         Instead override start().
         '''
-        self._service.dont_call(self._stop, on='stop_components')
-        self._service.dont_call(self._pause, on='pause_components')
-        self._service.call(self._start, on='start_components')
+        self._engine.dont_call(self._stop, on='stop_components')
+        self._engine.dont_call(self._pause, on='pause_components')
+        self._engine.call(self._start, on='start_components')
         for registration in self._event_registrations:
-            registration.unregister(bus=self._service)
+            registration.unregister(bus=self._engine)
         self._state = self.STATE_STOPPED
         self.stop()
 
@@ -88,11 +88,11 @@ class Component(object):
         Do not override this method unless you know what you are doing.
         Instead override start().
         '''
-        self._service.dont_call(self._pause, on='pause_components')
-        self._service.call(self._stop, on='stop_components')
-        self._service.call(self._resume, on='resume_components')
+        self._engine.dont_call(self._pause, on='pause_components')
+        self._engine.call(self._stop, on='stop_components')
+        self._engine.call(self._resume, on='resume_components')
         for registration in self._event_registrations:
-            registration.unregister(bus=self._service)
+            registration.unregister(bus=self._engine)
         self._state = self.STATE_PAUSED
         self.pause()
 
@@ -105,11 +105,11 @@ class Component(object):
         Do not override this method unless you know what you are doing.
         Instead override start().
         '''
-        self._service.dont_call(self._resume, on='resume_components')
-        self._service.call(self._stop, on='stop_components')
-        self._service.call(self._pause, on='pause_components')
+        self._engine.dont_call(self._resume, on='resume_components')
+        self._engine.call(self._stop, on='stop_components')
+        self._engine.call(self._pause, on='pause_components')
         for registration in self._event_registrations:
-            registration.register(bus=self._service)
+            registration.register(bus=self._engine)
         self._state = self.STATE_RUNNING
         self.resume()
 
@@ -128,32 +128,32 @@ class Component(object):
         registration = EventRegistration(callback, on, optional)
         self._event_registrations.append(registration)
         if self._state == self.STATE_RUNNING:
-            registration.register(self._service)
+            registration.register(self._engine)
 
     def dont_call(self, callback, on):
         '''Unregister callback for event_name.'''
         registration = EventRegistration(callback, on)
         self._event_registrations.remove(registration)
-        self._service.dont_call(callback, on)
+        self._engine.dont_call(callback, on)
 
     def fire(self, event_name, **data):
         '''Fire event_name with keyword parameters as data.'''
-        self._service.fire(event_name, data, source=self)
+        self._engine.fire(event_name, data, source=self)
 
     def may_fire(self, event_name):
-        self._service.may_fire(self, event_name)
+        self._engine.may_fire(self, event_name)
 
     def wont_fire(self, event_name):
-        self._service.wont_fire(self, event_name)
+        self._engine.wont_fire(self, event_name)
 
     def logger(self):
-        return self._service.logger(self)
+        return self._engine.logger(self)
 
     def config(self):
-        return self._service.config(self)
+        return self._engine.config(self)
 
     def config_full(self):
-        return self._service.config()
+        return self._engine.config()
 
 
 class EventRegistration(object):

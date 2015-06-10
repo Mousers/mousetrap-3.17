@@ -116,6 +116,7 @@ class Bus(object):
         '''
         self._get_callbacks(on).append(callback)
         if not optional:
+            import traceback
             trace = traceback.extract_stack() if trace is None else trace
             self._get_required(on).append({'callback':callback, 'trace':trace})
 

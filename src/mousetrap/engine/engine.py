@@ -35,12 +35,14 @@ class Engine(object):
                     (name))
 
     def start(self):
+        '''Start the system.'''
         self._load_configuration()
         self._open_log()
         self._load_components()
         self._start_components()
 
     def restart(self):
+        '''Restart the system, reloading the configuration and logs.'''
         self._pause_running_components()
         self._clear_configuration()
         self._load_configuration()
@@ -53,6 +55,7 @@ class Engine(object):
         self._start_components()
 
     def stop(self):
+        '''Stops the system.'''
         self._stop_components()
         self._close_log()
 
