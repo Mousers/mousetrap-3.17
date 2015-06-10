@@ -4,6 +4,21 @@ from __future__ import absolute_import
 from __future__ import division
 
 
+def update_dict_recursively(self, target, source):
+    '''Updates values in target with those from source. dict values are
+    updated recursively.
+    '''
+    from copy import deepcopy
+    if source is None:
+        return
+    for key, value in source.items():
+        if isinstance(value, dict):
+            target[key] = target.get(key, {})
+            update_dict_recursively(target[key], value)
+        else:
+            target[key] = deepcopy(value)
+
+
 #####################################################################
 #                                                                   #
 #  STRING -- Base type of strings in Python 2 or 3. Use with        #
@@ -18,6 +33,7 @@ def _get_string_type():
     return (str, ) if PYTHON_3 else (basestring, )
 
 STRING = _get_string_type()
+
 
 #####################################################################
 #                                                                   #
