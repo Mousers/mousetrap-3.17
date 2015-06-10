@@ -5,6 +5,8 @@ from __future__ import division
 
 import logging
 
+from .bus import Bus
+
 '''
     # Start mousetrap service.
     $ mousetrap
@@ -106,11 +108,11 @@ class Engine(Bus):
         self._load_the_logger()
 
     def _stop_unneeded_components(self):
-        for component not in self._unneeded_components():
+        for component in self._unneeded_components():
             component._stop()
 
     def _remove_unneeded_components(self):
-        for component not in self._unneeded_components():
+        for component in self._unneeded_components():
             self._components.remove(component)
 
     def _unneeded_components(self):
@@ -169,240 +171,6 @@ class Engine(Bus):
         '''Return logger for obj.'''
         return logging.getLogger(obj.__class__.__module__)
 
-
-class Bus(object):
-    '''Provides an event-based, publish-subscribe implementation that allows
-    components to communicate with minimal coupling.
-
-    Example
-    -------
-
-    Code
-
-        class Publisher:
-            def __init__(self, bus):
-                self.bus = bus
-
-            def foo(self):
-                self.bus.fire('foo_called', x=3)
-
-        class Subscriber:
-            def __init__(self, bus):
-                bus.call(self.bar, on='foo_called')
-
-            def bar(self, event):
-                print(event['x'])
-
-        bus = Bus()
-        Subscriber(bus)
-        Subscriber(bus)
-        publisher = Publisher(bus)
-        publisher.foo()
-
-
-    Output
-
-        3
-        3
-
-
-    Enforcing required events
-    -------------------------
-
-    As a sanity check, it may be useful to require that every event that has a
-    registered callback also have a registered publisher. This helps avoid
-    situations where a subscriber registers a callback for an event that will
-    never be fired.
-
-    To address this, we can ask that all would-be publishers of an event to
-    declare that they may_fire that event. Of course that doesn't guarentee
-    they will fire that event, but at least there is a possibility that the
-    event will fire.
-
-        class Publisher:
-            def __init__(self, bus):
-                bus.may_fire(self, 'some_event')
-
-    Now we can imagine an initialization process in which publishers declare
-    the events they may_fire, and subscribers register callbacks for those
-    events (in any order). After this initialization process, we can check if
-    there are any events that do not have a publisher as follows.
-
-        offending_registrations = bus.get_unpublished_required_registrations()
-
-    The result is a dict containing registrations for unpublished events (i.e.,
-    no one called may_fire for those events). We might print a warning for
-    each.
-
-        for event, registration in offending_registrations.items():
-            callback = registration['callback']
-            trace_to_registration = registration['trace']
-
-            callback_name = callback.__name__
-            formatted_trace = traceback.format_list(trace_to_registration))
-
-            print('WARNING: %s\nWARNING: %s is registered for an unpublished event %s' %
-                (formatted_trace, callback_name, event))
-
-    The trace is formatted according to traceback.extract_tb .
-    '''
-
-    def __init__(self):
-        self._callbacks = {}
-        self._required = {}
-        self._publishers = {}
-
-    def call(self, callback, on, optional=False, trace=None):
-        '''Register callback for named event (on).
-
-        Example:
-
-            def log_save(event):
-                assert type(event) is Event
-                ...
-
-            bus.call(log_save, on='saved_file', optional=True)
-
-        Parameters:
-
-            callback -- A callback that accepts a single Event parameter.
-
-            on -- A hashable naming an event (typically a str).
-
-            optional -- A bool indicating if the event is optional (True) or
-            required (False; default). A required event requires that a
-            publisher has declared that it will fire the event. This method
-            does not enforce this requirement, it just marks the event as
-            required or not making it possible to enforce it using
-            get_unpublished_required_registrations.
-
-            trace -- A stack trace formated according to traceback.extract_tb.
-            The trace should contain the call site of the registration.
-            Defaults to the current stack trace.
-        '''
-        self._get_callbacks(on).append(callback)
-        if not optional:
-            trace = traceback.extract_stack() if trace is None else trace
-            self._get_required(on).append({'callback':callback, 'trace':trace})
-
-    def dont_call(self, callback, on):
-        '''Unregister callback for named event (on).
-
-        Example
-
-            bus.dont_call(log_save, on='saved_file')
-
-        Parameters
-
-            callback -- A callback.
-
-            on -- A hashable naming an event (typically a str).
-        '''
-        self._get_callbacks(on).remove(callback)
-        registrations = self._get_required(on)
-        self._required[on] = [
-                    registration for registration in registrations
-                    if registration['callback'] != callback
-                ]
-
-    def fire(self, event, data=None, **keyword_args):
-        '''Calls callbacks registered for event named by event.name. The
-        parameters for fire are the same as those for Event.__init__.
-        '''
-        event = Event(event, data, **keyword_args)
-        callbacks = self._get_callbacks(event.name)
-        for callback in callbacks:
-            callback(event)
-
-    def may_fire(self, publisher, event_name):
-        '''Declare publisher will fire the named event.
-
-        Parameters
-
-            publisher -- Can be any object. Usually it's the object that plans
-            to fire events.
-
-            event_name -- A hashable naming an event (typically a str).
-        '''
-        publishers = self._get_publishers(event_name)
-        publishers.append(publisher)
-
-    def wont_fire(self, publisher, event_name):
-        '''Declare publisher wont fire the named event.
-
-        Parameters
-
-            publisher -- Can be any object. Usually it's the object that plans
-            to fire events.
-
-            event_name -- A hashable naming an event (typically a str).
-        '''
-        publishers = self._get_publishers(event_name)
-        publishers.remove(publisher)
-
-    def get_unpublished_required_registrations(self):
-        '''Return registration information for required events without a
-        declared publisher.
-
-        Return -- a dict whose keys are the event names and whose values are
-        lists of (callback, trace), where callback is the callable that is
-        registered for the event, and trace is the stack trace when the
-        callback was registered (as returned by traceback.extract_tb).
-        '''
-        unpublished_required_registrations = {}
-        for event_name in self._required:
-            if not self.has_publisher(event_name):
-                unpublished_required_registrations[event_name] = self._required[event_name]
-        return unpublished_required_registrations
-
-    def has_publisher(self, event_name):
-        '''Return True if the name event has a declared publisher.'''
-        return len(self._get_publishers(event_name)) > 0
-
-    def _get_callbacks(self, event_name):
-        self._callbacks[event_name] = self._callbacks.get(event_name, [])
-        return self._callbacks[event_name]
-
-    def _get_required(self, event_name):
-        self._required[event_name] = self._required.get(event_name, [])
-        return self._required[event_name]
-
-    def _get_publishers(self, event_name):
-        self._publishers[event_name] = self._publishers.get(event_name, [])
-        return self._publishers[event_name]
-
-
-class Event(dict):
-    '''Events are used to transmit data from publishers to subscribers on an
-    bus. The name of an event is used to route transmissions to subscribers;
-    i.e., only subscribers who have registered for the name of an event will
-    receive events with that name.
-
-    Examples
-
-        event = Event('saved_file')
-        assert event.name == 'saved_file'
-
-        event = Event('saved_file', x=1, y='hi')
-        assert event['x'] == 1
-        assert event['y'] == 'hi'
-
-        event = Event('saved_file', {'x':1, 'y':'hi'})
-        assert event['x'] == 1
-        assert event['y'] == 'hi'
-
-        event = Event('saved_file', {'x':1, 'y':'hi'}, y='bye')
-        assert event['x'] == 1
-        assert event['y'] == 'bye'
-    '''
-
-    def __init__(self, _event_name_, _data_=None, **keyword_args):
-        '''Keyword arguments with single underscore, _keyword_, are reserved.
-        '''
-        if _data_ is not None:
-            self.update(_data_)
-        self.update(keyword_args)
-        self.name = _event_name_
 
 
 class Component(object):
@@ -568,7 +336,7 @@ class EventRegistration(object):
         self.trace = trace
 
     def register(self, bus):
-        bus.call(self.callback, on=self.event_name, self.optional, self.trace)
+        bus.call(self.callback, self.event_name, self.optional, self.trace)
 
     def unregister(self, bus):
         bus.dont_call(self.callback, on=self.event_name)
@@ -587,7 +355,7 @@ class EventRegistration(object):
 
 def _get_string_type():
     import sys
-    PYTYON_3 = sys.version_info[0] == 3
+    PYTHON_3 = sys.version_info[0] == 3
     return (str, ) if PYTHON_3 else (basestring, )
 
 STRING = _get_string_type()
