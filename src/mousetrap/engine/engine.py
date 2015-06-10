@@ -28,11 +28,13 @@ class Engine(object):
 
     def __getattr__(self, name):
         '''Dispatches unfound members to _bus.'''
-        return getattr(self._bus, name)
+        try:
+            return getattr(self._bus, name)
+        except AttributeError as error:
+            raise AttributeError("'Engine' object has no attribute '%s'" %
+                    (name))
 
     def start(self):
-        self._register_for_signals()
-        self._parse_command_line()
         self._load_configuration()
         self._open_log()
         self._load_components()
@@ -64,7 +66,7 @@ class Engine(object):
         self._conf.load()
 
     def _open_log(self):
-        self._log.open(self._conf['logging'])
+        self._log.open(self.conf()['logging'])
 
     def _close_log(self):
         self._log.close()
@@ -82,7 +84,7 @@ class Engine(object):
         return [x for x in self._components if x.__name__ not in enabled]
 
     def _enabled_components(self):
-        return self._conf['enabled_components']
+        return self.conf()['enabled_components']
 
     def _load_components(self):
         self._load_enabled_components()

@@ -11,15 +11,15 @@ def parse_the_command_line_arguments():
     from argparse import ArgumentParser
     mousetrap_command = ArgumentParser()
     message=_('Loads configuration from FILE.')
-    parser.add_argument('--config', metavar='FILE', help=message)
-    return parser.parse_args()
+    mousetrap_command.add_argument('--config', metavar='FILE', help=message)
+    return mousetrap_command.parse_args()
 
 
 def register_for_systemd_signals(engine):
-    from signal import signal
-    signal(signal.SIGHUP, engine.restart)
-    signal(signal.SIGTERM, engine.stop)
-    signal(signal.SIGINT, engine.stop)
+    from signal import signal, SIGHUP, SIGTERM, SIGINT
+    signal(SIGHUP, engine.restart)
+    signal(SIGTERM, engine.stop)
+    signal(SIGINT, engine.stop)
 
 
 args = parse_the_command_line_arguments()

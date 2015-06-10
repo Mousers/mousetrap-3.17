@@ -6,7 +6,10 @@ from __future__ import division
 import logging
 
 
-def Log(object):
+class Log(object):
+    def __init__(self):
+        pass
+
     def close(self):
         logging.shutdown()
         reload(logging)

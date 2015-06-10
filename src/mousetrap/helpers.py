@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 
 
-def update_dict_recursively(self, target, source):
+def update_dict_recursively(target, source):
     '''Updates values in target with those from source. dict values are
     updated recursively.
     '''
@@ -47,7 +47,13 @@ def _get_translation_function():
     import gettext
     from os.path import abspath, dirname, join, realpath
     locale_dir = abspath(join(dirname(realpath(__file__)), "locale"))
-    translations = gettext.translation("mousetrap", localedir=locale_dir)
+    domain = 'mousetrap'
+    try:
+        translations = gettext.translation(domain, localedir=locale_dir)
+    except:
+        print("Could not load translation file for %s in %s" %
+                (domain, locale_dir))
+        return lambda x: x
     try:
         return translations.ugettext
     except AttributeError:

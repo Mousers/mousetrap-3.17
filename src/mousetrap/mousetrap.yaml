@@ -1,6 +1,5 @@
-# assembly - A list of puglin classes to load and run. Order matters.
-#            To enable a plugin, list it here.
-assembly:
+# enabled_components -- Components listed here will be loaded an ran.
+enabled_components:
 - mousetrap.plugins.camera.CameraPlugin
 - mousetrap.plugins.display.DisplayPlugin
 - mousetrap.plugins.nose.NoseJoystickPlugin
