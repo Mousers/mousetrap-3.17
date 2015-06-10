@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
+import logging
 
 '''
     # Start mousetrap service.
@@ -13,7 +14,7 @@ from __future__ import division
 '''
 
 
-class Service(Bus):
+class Engine(Bus):
     '''
     Responsibilities:
         1. Respond to POSIX signals consistent with their use in systemd.
@@ -30,16 +31,35 @@ class Service(Bus):
     exposed to Component.
     '''
     def __init__(self):
+        super().__init__()
         self._arguments = None
         self._config = {}
         self._logger = None
         self._components = []
+
+    def _start(self):
         self._register_for_signals()
         self._parse_the_command_line()
+        self._load_the_configuration()
+        self._start_the_logger()
+        self._load_components()
+        self._start_components()
+
+    def _restart(self):
+        self._pause_running_components()
+        self._clear_the_configuration()
+        self._load_the_configuration()
+        self._stop_the_logger()
+        self._start_the_logger()
+        self._stop_unneeded_components()
+        self._remove_unneeded_components()
+        self._load_needed_components()
+        self._resume_components()
+        self._start_components()
 
     def _register_for_signals(self):
         from signal import signal
-        signal(signal.SIGHUP, self._start)
+        signal(signal.SIGHUP, self._restart)
         signal(signal.SIGTERM, self._stop)
         signal(signal.SIGINT, self._stop)
 
@@ -50,22 +70,16 @@ class Service(Bus):
         parser.add_argument('--config', metavar='FILE', help=message)
         self._arguments = parser.parse_args()
 
-    def _start(self):
-        self._pause_running_components()
-        self._load_the_configuration()
-        self._configure_the_logger()
-        self._unload_unneeded_components()
-        self._load_needed_components()
-        self._start_or_resume_the_components()
-
     def _pause_running_components(self):
         self.fire('pause_components')
+
+    def _clear_the_configuration(self):
+        self._config = {}
 
     def _load_the_configuration(self):
         from os.path import dirname, expanduser, exists
         from yaml import safe_load
         my = I
-        self._config = {}
         configs_to_load = [dirname(__file__) + '/mousetrap.yaml']
         if self._arguments.config is not None:
             configs_to_load.append(self._arguments.config)
@@ -75,21 +89,33 @@ class Service(Bus):
         for config_path in configs_to_load:
             with open(config_path) as config_file:
                 config = safe_load(config_file)
-            self._update_dict(self._config, config)
+            self._recursively_update_dict(self._config, config)
 
-    def _configure_the_logger(self):
-        # TODO: Handle reconfigure
-        import logging
+    def _stop_the_logger(self):
+        logging.shutdown()
+        reload(logging)
+
+    def _load_the_logger(self):
         import logging.config
         logging.config.dictConfig(self._config['logging'])
         self._logger = logging.getLogger('mousetrap.service')
 
-    def _unload_unneeded_components(self):
-        needed = self._config['components']
-        unneeded = [x for x in self._components if x.__name__ not in needed]
-        for component not in unneeded:
-            component.stopping()
+    def _reload_the_logger(self):
+        logging.shutdown()
+        reload(logging)
+        self._load_the_logger()
+
+    def _stop_unneeded_components(self):
+        for component not in self._unneeded_components():
+            component._stop()
+
+    def _remove_unneeded_components(self):
+        for component not in self._unneeded_components():
             self._components.remove(component)
+
+    def _unneeded_components(self):
+        needed = self._config['components']
+        return [x for x in self._components if x.__name__ not in needed]
 
     def _load_needed_components(self):
         '''Load components not already loaded.'''
@@ -108,24 +134,23 @@ class Service(Bus):
                 raise
             self._components.append(component)
 
-    def _start_or_resume_the_components(self):
+    def _start_components(self):
         self.fire('start_components')
+
+    def _resume_components(self):
         self.fire('resume_components')
 
     def _stop(self):
         self.fire('stop_components')
 
-    def _update_dict(self, target, source):
-        '''Recursively update values in target from source.
-        Only dicts are updated, all other values are deep copied.
-        '''
+    def _recursively_update_dict(self, target, source):
         from copy import deepcopy
         if source is None:
             return
         for key, value in source.items():
             if isinstance(value, dict):
                 target[key] = target.get(key, {})
-                self._update_dict(target[key], value)
+                self._recursively_update_dict(target[key], value)
             else:
                 target[key] = deepcopy(value)
 

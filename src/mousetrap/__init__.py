@@ -5,3 +5,5 @@ from __future__ import division
 __version__ = "1.0.0a"
 
 VERSION = __version__.split(".")
+
+from .engine import Component, _, STRING
