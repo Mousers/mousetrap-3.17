@@ -3,26 +3,52 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from .engine import Engine
-from .helpers import _
+from mousetrap.lib import _, conf, logging, Engine
 
 
-def parse_the_command_line_arguments():
-    from argparse import ArgumentParser
-    mousetrap_command = ArgumentParser()
-    message=_('Loads configuration from FILE.')
-    mousetrap_command.add_argument('--config', metavar='FILE', help=message)
-    return mousetrap_command.parse_args()
+class Main(object):
+    def __init__(self):
+        self._args = None
+        self._conf_default = dirname(__file__) + '/config.yaml'
+        self._conf_user = expanduser('~/.mousetrap.yaml')
+        self._engine = Engine()
+        self._register_for_systemd_signals()
+
+    def _register_for_systemd_signals(self):
+        from signal import signal, SIGHUP, SIGTERM, SIGINT
+        signal(SIGHUP, self.restart)
+        signal(SIGTERM, self.stop)
+        signal(SIGINT, self.stop)
+
+    def start(self):
+        conf.load(self._conf_default)
+        logger.configure(config['logging'])
+        args = self._parse_the_command_line_arguments()
+        conf.load(first_of=[self._args.config, self._conf_user])
+        logger.shutdown()
+        logger.configure(config['logging'])
+        self._engine.start()
+
+    def restart(self):
+        self._engine.pause()
+        conf.clear()
+        conf.load(self._conf_default)
+        conf.load(first_of=[self._args.config, self._conf_user])
+        logger.shutdown()
+        logger.configure(config['logging'])
+        self._engine.resume()
+
+    def stop(self):
+        self._engine.stop()
+        logger.shutdown()
+
+    def _parse_the_command_line_arguments(self):
+        from argparse import ArgumentParser
+        mousetrap_command = ArgumentParser()
+        message=_('Loads configuration from FILE.')
+        mousetrap_command.add_argument('--config', metavar='FILE', help=message)
+        return mousetrap_command.parse_args()
 
 
-def register_for_systemd_signals(engine):
-    from signal import signal, SIGHUP, SIGTERM, SIGINT
-    signal(SIGHUP, engine.restart)
-    signal(SIGTERM, engine.stop)
-    signal(SIGINT, engine.stop)
-
-
-args = parse_the_command_line_arguments()
-engine = Engine(config_path=args.config)
-register_for_systemd_signals(engine)
-engine.start()
+main = Main()
+main.start()
