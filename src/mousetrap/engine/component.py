@@ -8,12 +8,13 @@ class Component(object):
     '''Components provide units of functionality for MouseTrap. Components
     communicate with eachother through events.
 
-    Each component is in one of three states: stopped. running. or paused. A
-    component is initially in the stopped state. A component only receives or
-    fires events from other components in the running state (it may still
-    receive events from the system). A component in the stopped state uses
-    minimal resources, whereas a component in the paused state retains
-    resources in anticipation of being resumed.
+    Each component is in one of three states: stopped. running. or paused.
+    Component defines a constant for each of these states A component is
+    initially in the stopped state. A component only receives or fires events
+    from other components in the running state (it may still receive events
+    from the system). A component in the stopped state uses minimal resources,
+    whereas a component in the paused state retains resources in anticipation
+    of being resumed.
 
     To implement a component, inherit from Component and override init(),
     start(), pause(), resume(), and stop() as needed. You may also call

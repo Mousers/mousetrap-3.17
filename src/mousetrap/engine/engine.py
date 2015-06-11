@@ -19,12 +19,22 @@ class Engine(object):
     2. Configuration
     3. Communication bus (can call Bus methods directly on Engine instance)
 
+    Engine may fire the following events:
+
+    - start_components -- start stopped components
+    - stop_components -- stop running and paused components
+    - pause_components -- pause running components
+    - resume_components -- restart paused components
     '''
     def __init__(self, config_path=None):
         self._conf = Conf(config_path)
         self._log = Log()
         self._components = []
         self._bus = Bus()
+        self._bus.may_fire('start_components')
+        self._bus.may_fire('stop_components')
+        self._bus.may_fire('pause_components')
+        self._bus.may_fire('resume_components')
 
     def __getattr__(self, name):
         '''Dispatches unfound members to _bus.'''
@@ -35,14 +45,12 @@ class Engine(object):
                     (name))
 
     def start(self):
-        '''Start the system.'''
         self._load_configuration()
         self._open_log()
         self._load_components()
         self._start_components()
 
     def restart(self):
-        '''Restart the system, reloading the configuration and logs.'''
         self._pause_running_components()
         self._clear_configuration()
         self._load_configuration()
@@ -55,7 +63,6 @@ class Engine(object):
         self._start_components()
 
     def stop(self):
-        '''Stops the system.'''
         self._stop_components()
         self._close_log()
 
@@ -87,6 +94,7 @@ class Engine(object):
         return [x for x in self._components if x.__name__ not in enabled]
 
     def _enabled_components(self):
+        '''Return list of enabled components.'''
         return self.conf()['enabled_components']
 
     def _load_components(self):
@@ -116,7 +124,12 @@ class Engine(object):
         self.fire('resume_components')
 
     def conf(self, context=None):
+        '''Return the configuration dictionary. If context is provided, it
+        returns just the part of the configuration dictionary that corresponds
+        to context's class.
+        '''
         return self._conf.dict(context)
 
-    def logger(self, obj):
+    def logger(self, context):
+        '''Return the logger associated with context.'''
         return self._log.get_logger(obj)
