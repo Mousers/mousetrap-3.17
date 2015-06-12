@@ -3,7 +3,13 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from mousetrap.lib import _, conf, logging, Engine
+from os.path import dirname
+from os.path import expanduser
+
+from .lib import _
+from .lib import conf
+from .lib import logger
+from .lib import Engine
 
 
 class Main(object):
@@ -22,23 +28,23 @@ class Main(object):
 
     def start(self):
         conf.load(self._conf_default)
-        logger.configure(config['logging'])
-        args = self._parse_the_command_line_arguments()
+        logger.configure(conf['logging'])
+        self._args = self._parse_the_command_line_arguments()
         conf.load(first_of=[self._args.config, self._conf_user])
         logger.shutdown()
-        logger.configure(config['logging'])
+        logger.configure(conf['logging'])
         self._engine.start()
 
-    def restart(self):
+    def restart(self, *args, **kwargs):
         self._engine.pause()
         conf.clear()
         conf.load(self._conf_default)
         conf.load(first_of=[self._args.config, self._conf_user])
         logger.shutdown()
-        logger.configure(config['logging'])
+        logger.configure(conf['logging'])
         self._engine.resume()
 
-    def stop(self):
+    def stop(self, *args, **kwargs):
         self._engine.stop()
         logger.shutdown()
 

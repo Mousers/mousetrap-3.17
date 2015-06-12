@@ -1,11 +1,13 @@
 # enabled_components -- Components listed here will be loaded an ran.
 enabled_components:
-- mousetrap.plugins.camera.CameraPlugin
-- mousetrap.plugins.display.DisplayPlugin
-- mousetrap.plugins.nose.NoseJoystickPlugin
-- mousetrap.plugins.eyes.EyesPlugin
-- mousetrap.vision.FeatureDetectorClearCachePlugin
-
+- mousetrap.components.camera.CameraComponent
+- mousetrap.components.glib.GlibLoopComponent
+#- mousetrap.plugins.display.DisplayPlugin
+#- mousetrap.plugins.nose.NoseJoystickPlugin
+#- mousetrap.plugins.eyes.EyesPlugin
+#- mousetrap.vision.FeatureDetectorClearCachePlugin
+mousetrap.components.camera:
+    capture_interval_milliseconds: 1000
 
 # camera - Configuration for the built-in camera.
 camera:
