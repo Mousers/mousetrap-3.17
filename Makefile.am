@@ -124,25 +124,21 @@ MT_BUILD_HOME = $(shell dirname $(shell find "$(builddir)/build" -mindepth 2 -ma
 MT_BUILD_TESTS = $(shell find "$(MT_BUILD_HOME)/mousetrap" -name "run_python_tests.py")
 
 check-local:
-	if command -v coverage >/dev/null 2>&1 ; then \
-		PYTHONPATH="$(MT_BUILD_HOME)" \
-			coverage run \
-				--branch \
-				--source="$(MT_BUILD_HOME)" \
-				--omit="*/__init__.py","*/test_*.py","*/run_python_tests.py" \
-				"$(MT_BUILD_TESTS)"; \
-		exit $$?; \
-	else \
-		PYTHONPATH="$(MT_BUILD_HOME)" \
-			"$(PYTHON)" "$(MT_BUILD_TESTS)"; \
-		exit $$?; \
-	fi
+	PYTHONPATH="$(MT_BUILD_HOME)" \
+		"$(PYTHON)" "$(MT_BUILD_TESTS)"; \
+	exit $$?;
 
 
 ##############################################################################
 # TARGET: coverage
 
 coverage:
+	PYTHONPATH="$(MT_BUILD_HOME)" \
+		"$(PYTHON)" "`which coverage`" run \
+			--branch \
+			--source="$(MT_BUILD_HOME)" \
+			--omit="*/__init__.py","*/test_*.py","*/run_python_tests.py" \
+			"$(MT_BUILD_TESTS)"; \
 	bin/coverage.bash
 
 
