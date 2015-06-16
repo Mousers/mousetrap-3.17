@@ -101,3 +101,7 @@ Makefile.in
 /config.status
 
 /py-compile
+
+##############################################################################
+# Distribution files
+*.tar.gz
