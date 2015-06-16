@@ -9,7 +9,7 @@ python:
 env:
   matrix:
     - OPENCV_VERSION=2.4.10.1
-    - OPENCV_VERSION=3.0.0-beta
+    - OPENCV_VERSION=3.0.0
     - OPENCV_VERSION=master
 
 matrix:
