@@ -1,5 +1,6 @@
 import mousetrap.plugins.interface as interface
 import logging
+import cv2
 
 
 LOGGER = logging.getLogger(__name__)
@@ -19,11 +20,11 @@ class Bright(interface.Plugin):
         if self.width == None:
             self.width = app.gui.get_screen_width()
             self.height = app.gui.get_screen_height()
-        gray = cv2.cvtColor(app.image, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(app.image._image_cv, cv2.COLOR_BGR2GRAY)
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(gray)
-        newPoint = Point(displayWidth - abs(int(2*maxLoc[0])), int(2*maxLoc[1]))
+        newPoint = Point(self.width - abs(int(2*maxLoc[0])), int(2*maxLoc[1]))
         self._point_buffer.addPoint(newPoint)
-        average = points.average()
+        average = self._point_buffer.average()
         app.pointer.set_position((average.x, average.y))
         app.pointer.get_position() #updates pointer
 

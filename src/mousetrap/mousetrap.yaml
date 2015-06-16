@@ -2,11 +2,11 @@
 #            To enable a plugin, list it here.
 assembly:
 - mousetrap.plugins.camera.CameraPlugin
-- mousetrap.plugins.display.DisplayPlugin
-- mousetrap.plugins.nose.NoseJoystickPlugin
-- mousetrap.plugins.eyes.EyesPlugin
-- mousetrap.vision.FeatureDetectorClearCachePlugin
-#- mousetrap.plugins.bright_object.Bright
+#- mousetrap.plugins.display.DisplayPlugin
+#- mousetrap.plugins.nose.NoseJoystickPlugin
+#- mousetrap.plugins.eyes.EyesPlugin
+#- mousetrap.vision.FeatureDetectorClearCachePlugin
+- mousetrap.plugins.bright_object.Bright
 
 
 # camera - Configuration for the built-in camera.
