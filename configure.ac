@@ -18,6 +18,8 @@ AM_CHECK_PYMOD(gi.repository,,,[AC_MSG_ERROR(Could not find python module gi.rep
 AM_CHECK_PYMOD(Xlib,,,[AC_MSG_ERROR(Could not find python module Xlib)])
 AM_CHECK_PYMOD(yaml,,,[AC_MSG_ERROR(Could not find python module yaml)])
 
+AC_PREFIX_PROGRAM([python])
+
 AC_CONFIG_FILES([
 Makefile
 ])

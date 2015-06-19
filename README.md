@@ -29,49 +29,54 @@ to install the mousetrap dependencies for Fedora21, Python3 and OpenCV3.
 * Let Script run through until finished.
 
 
-## Download
-
-### Stable
+## Download, build, and install MouseTrap using autotools
 
     $ git clone git://git.gnome.org/mousetrap
+    $ cd mousetrap
+    $ ./autogen.sh
+    $ make
+    $ sudo make install
 
-### Development
+By default Python 2.7 is used. To use Python 3, set $PYTHON to the
+path to the python3 executable. For example, assuming python3 is in your
+$PATH:
 
-    $ git clone git://git.gnome.org/mousetrap --branch gnome3-wip
+    $ PYTHON="$(which python3)" ./autogen.sh
 
+Options passed to autogen.sh will be passed on to gnome-autogen.sh and
+ultimately configure. So, for example, you can override the guessed prefix by
+passing --prefix to autogen.sh:
 
-## Installing
+    $ ./autogen.sh --prefix=/usr/local
 
-### Using `pip`
-
-    cd mousetrap
-    sudo pip install .
-
-### Using `autotools`
-
-    cd mousetrap
-    # For python3: 
-    PYTHON=$(which python3) ./autogen.sh # On Fedora, add --prefix=/usr
-    # For python2:
-    ./autogen.sh # On Fedora, add --prefix=/usr
-    make
-    sudo make install
-
-## Uninstalling
-
-When uninstalling, make sure that you are in the Mousetrap folder that you used to install Mousetrap.
-
-### Using 'autotools'
-
-    sudo make uninstall
-
-## Running
-
-    mousetrap --help # Print the list of possible command-line options
-    mousetrap
+Note: prefix is guessed based on the installed location of Python.
 
 
-## Using
+## Download, build, and install MouseTrap using pip
+
+    $ git clone git://git.gnome.org/mousetrap
+    $ cd mousetrap
+    $ sudo pip install .
+
+
+## Uninstal MouseTrap using autotools
+
+    $ sudo make uninstall
+
+
+## Running MouseTrap
+
+    $ mousetrap
+
+
+## Stopping MouseTrap
+
+From the terminal in which you started MouseTrap
+
+    ^C
+
+
+## Using MouseTrap
 
 By default, MouseTrap tracks your face, allowing you to control the
 mouse pointer using a joystick metaphor. When you look left,
@@ -80,7 +85,7 @@ look down, it moves down; look straight ahead, it stops moving. To click,
 close your left eye for about 1.5 seconds.
 
 
-## Configuring
+## Configuring MouseTrap
 
 To customize MouseTrap's configuration, place a copy of the annotated built-in
 configuration in ~/.mousetrap.yaml, and then edit it.
@@ -102,12 +107,13 @@ Dump built-in annotated configuration.
 
     mousetrap --dump-annotated
 
-## Translating
+
+## Translating MouseTrap
 
 Use `src/mousetrap/locale/_language_/LC_MESSAGES/mousetrap.po` as your template (POT file).
 
 
-## Writing a Plugin
+## Writing a plugin for MouseTrap
 
 ### Example plugin class
 
@@ -166,6 +172,7 @@ classes:
 ```
 
 For more examples, see the plugins in `src/mousetrap/plugins`.
+
 
 ## Developing
 

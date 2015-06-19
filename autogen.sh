@@ -1,6 +1,18 @@
 #!/bin/bash
 # Run this to generate all the initial makefiles, etc.
 
+
+## Guess the python version to use. Defaults to Python 2.7
+## To make python3 the default, move python3 to the front of
+## python_search_order.
+python_search_order="python python3"
+for python_version in $python_search_order ; do
+    if [ -z "$PYTHON" ] ; then
+        PYTHON="$(which $python_version)"
+    fi
+done
+export PYTHON
+
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
