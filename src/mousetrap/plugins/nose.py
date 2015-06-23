@@ -51,29 +51,14 @@ class NoseJoystickPlugin(interface.Plugin):
 
     def run(self, app):
         self._app = app
-        location = None
         try:
             point_image = self._nose_locator.locate(app.image)
-            point_screen = self._convert_image_to_screen_point(*point_image)
-            location = point_screen
+            delta = self._convert_image_to_pointer_delta(*point_image)
         except FeatureNotFoundException:
-            location = app.pointer.get_position()
-            location = self._apply_delta_to_point(location, self._last_delta)
-        app.pointer.set_position(location)
+            delta = self._last_delta
+        app.pointer.move(delta)
 
-    def _apply_delta_to_point(self, point, delta):
-        delta_x, delta_y = delta
-        point_x, point_y = point
-
-        if delta_x == 0 and delta_y == 0:
-            return None
-
-        point_x += delta_x
-        point_y += delta_y
-
-        return (point_x, point_y)
-
-    def _convert_image_to_screen_point(self, image_x, image_y):
+    def _convert_image_to_pointer_delta(self, image_x, image_y):
         initial_x, initial_y = self._initial_image_location
 
         if initial_x == 0 and initial_y == 0:
@@ -94,9 +79,7 @@ class NoseJoystickPlugin(interface.Plugin):
 
         self._last_delta = delta
 
-        location = self._app.pointer.get_position()
-
-        return self._apply_delta_to_point(location, delta)
+        return delta
 
 
 class NoseLocator(object):

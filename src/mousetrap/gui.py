@@ -114,6 +114,34 @@ class Pointer(object):
         self._pointer = device_manager.get_client_pointer()
         self._screen = gdk_display.get_default_screen()
         self._moved = False
+        self._move_multiplier = self._config[self]['move_multiplier']
+
+    def move(self, delta):
+        '''Move pointer by (dx, dy) where dx and dy are defined as follows:
+            dx = int(round(delta[0] * move_multiplier))
+            dy = int(round(delta[1] * move_multiplier))
+
+        move_multiplier may be set in ~/.mousetrap.yaml or by calling
+        set_move_multiplier().
+        '''
+        (dx, dy) = delta
+
+        if not isinstance(dx, int) or not isinstance(dy, int):
+            raise Exception(_('delta elements must be integer.'))
+
+        (x, y) = self.get_position()
+        x += int(round(dx * self._move_multiplier, 0))
+        y += int(round(dy * self._move_multiplier, 0))
+        self.set_position((x, y))
+
+    def set_move_multiplier(self, multiplier):
+        self._move_multiplier = multiplier
+
+    def get_position(self):
+        x_index = 1
+        y_index = 2
+        position = self._pointer.get_position()
+        return (position[x_index], position[y_index])
 
     def set_position(self, position=None):
         '''Move pointer to position (x, y). If position is None,
@@ -131,12 +159,6 @@ class Pointer(object):
         '''Returns True if last call to set_position passed a non-None value
         for position.'''
         return self._moved
-
-    def get_position(self):
-        x_index = 1
-        y_index = 2
-        position = self._pointer.get_position()
-        return (position[x_index], position[y_index])
 
     def click(self, button=BUTTON_LEFT):
         display = XlibDisplay()

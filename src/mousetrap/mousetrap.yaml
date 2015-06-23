@@ -25,6 +25,17 @@ camera:
 #           If you are installing a plugin, it may want you to add an
 #           entry here to configure it.
 classes:
+
+  mousetrap.gui.Pointer:
+
+    # Use move_multiplier to control the speed that the mouse pointer moves.
+    # Setting this to greater than 1 increases the speed; less than one slows
+    # it. Setting it to 0 will not allow the pointer to move. Negative will
+    # reverse the pointer movement. This may not affect the spead for all
+    # plugins. Only plugins that move the pointer relatively via Pointer.move()
+    # will be affected.
+    move_multiplier: 1.0
+
   mousetrap.plugins.display.DisplayPlugin:
     window_title: MouseTrap
   mousetrap.plugins.eyes.ClosedDetector:
