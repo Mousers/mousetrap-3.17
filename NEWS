@@ -1,5 +1,8 @@
 3.17.3
 =======
+* Improve build configuration guessing.
+* Use correct python version for `make check` and `make coverage`.
+* Shutdown cleanly on SIGINT and SIGTERM.
 
 
 3.17.2
